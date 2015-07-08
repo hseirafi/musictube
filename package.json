@@ -1,0 +1,19 @@
+{
+  "name": "videotube",
+  "version": "1.0.0",
+  "description": "========",
+  "main": "angular.min.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hseirafi/musictube"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hseirafi/musictube/issues"
+  },
+  "homepage": "https://github.com/hseirafi/musictube"
+}

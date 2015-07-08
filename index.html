@@ -1,62 +1,263 @@
 <!doctype html>
-<html data-ng-app="JukeTubeApp">
-  <head>
-    <meta charset="utf-8"> 
+<html data-ng-app="YoutubePlayer">
+<head>
+    <meta charset="utf-8">
     <title>MusicTube</title>
-    <meta name="author" content="J. Thomas">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href='http://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet' type='text/css'>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no"/>
+    <link rel="stylesheet" href="node_modules/angular-material/angular-material.css">
+    <!--<link href='http://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet' type='text/css'>-->
+    <script src="node_modules/angular-material/modules/closure/whiteframe/whiteframe.css">
+    </script>
     <link rel="stylesheet" href="style.css" type="text/css">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no"/>
+    <link rel="stylesheet" href="node_modules/angular-material/angular-material.css">
+
     <link rel="icon" href="/favicon.ico">
-  </head>
-  <body data-ng-controller="VideosController">
-    <header>
-      <h1>Music<strong>Tube</strong></h1>
-      <form id="search" data-ng-submit="search()">
-        <input id="query" name="q" type="text" placeholder="Search for a YouTube video" data-ng-model="query">
-        <input id="submit" type="image" src="search.png" alt="Search">
-      </form>
-      <nav>
-        <a id="play">{{ youtube.state }}</a>
-        <a id="pause">Pause</a>
-      </nav>
-    </header>
-    <div id="results">
-      <div class="video" data-ng-repeat="video in results" data-ng-click="queue(video.id, video.title)">
-        <img class="video-image" data-ng-src="{{ video.thumbnail }}">
-        <p class="video-title">{{ video.title }}</p>
-        <p class="video-author">{{ video.author }}</p>
-        <p class="video-description">{{ video.description }}</p>
-      </div>
+</head>
+<body data-resizable>
+<!--width: {{windowWidth}}px-->
+<div data-ng-controller="VideosController">
+
+
+    <md-toolbar class="md-primary md-hue-3"><h3></h3></md-toolbar>
+
+    <div layout="row" layout-sm="column">
+        <div flex>
+
+
+            <!--I'm above on mobile, and to the left on larger devices.-->
+            <!--content-start video-->
+            <md-content id="player" class="md-padding ">
+
+                <md-card>
+
+                    <div id="placeholder" class="md-card-image" alt="Washed Out"></div>
+
+
+                    <!--content end  video -->
+
+                    <!--content-start bottom pannel to video-->
+                    <md-card-content class="md-raised">
+
+                        <div id="playlist">
+                            <h2 class="md-title">{{ youtube.videoTitle }}</h2>
+
+                            <div layout="column" md-theme="altTheme" layout-fill style="padding-bottom:32px;"
+                                 id="upcoming"
+                                 data-ng-show="playlist">
+                                <md-whiteframe class="md-whiteframe-z1" layout="row" layout-align="space-between center"
+                                               data-ng-repeat="video in upcoming">
+                                <span class="item-title"
+                                      data-ng-click="delete('upcoming', video.id)">{{video.title}}</span>
+                                    <md-button class="md-raised md-primary md-hue-1"
+                                               data-ng-click="launch(video.id, video.title)">play
+                                    </md-button>
+
+
+                                </md-whiteframe>
+                            </div>
+
+                            <div layout="column" layout-fill style="padding-bottom:32px;" id="history"
+                                 data-ng-hide="playlist">
+                                <md-whiteframe class="md-whiteframe-z1" layout="row" layout-align="space-between center"
+                                               data-ng-repeat="video in history">
+                                    <span class="item-title"
+                                          data-ng-click="delete('history', video.id)">{{video.title}}</span>
+                                    <md-button class="md-raised md-primary md-hue-2"
+                                               data-ng-click="queue(video.id, video.title)">queue
+                                    </md-button>
+
+
+                                </md-whiteframe>
+                            </div>
+
+                            <div layout="row" id="tabs" layout-align="end end">
+                                <md-button class="md-raised md-primary md-hue-3 " ng-class="{on:playlist}"
+                                           data-ng-click="tabulate(true)">
+                                    Upcoming
+                                </md-button>
+                                <md-button class="md-raised md-primary md-hue-3" ng-class="{on:!playlist}"
+                                           data-ng-click="tabulate(false)">
+                                    History
+                                </md-button>
+                            </div>
+                        </div>
+
+
+                    </md-card-content>
+            </md-content>
+            <!--content end pannel-->
+
+
+        </div>
+        <div flex>
+
+
+            <!--I'm below on mobile, and to the right on larger devices.-->
+
+
+            <!--content start search form -->
+            <md-content layout-padding layout="row" class="md-primary">
+                <form name="searchform" data-ng-submit="search(query, windowWidth)">
+                    <md-input-container flex>
+                        <label>Type your search term</label>
+                        <input style="width: 100%" id="query" name="q" type="text" data-ng-model="query" required/>
+                    </md-input-container>
+                    <md-button id="submit" class="md-raised md-primary md-hue-1 md-body-2" type="image" src="search.png"
+                               ng-disabled="searchform.$invalid" alt="Search">Search
+                    </md-button>
+                </form>
+            </md-content>
+            <!--content end search form-->
+            <div>
+                <md-content class="md-padding">
+                    <md-tabs md-dynamic-height md-border-bottom>
+                        <md-tab label="Results" data-ng-if="resultsLength()>0">
+                            <md-content class="md-padding">
+
+                                <!--content start content search start results-->
+
+                                <md-content id="results">
+                                    <md-list>
+                                        <md-subheader class="md-no-sticky">Search results</md-subheader>
+                                        <div class="md-3-line" data-ng-repeat="video in results"
+                                             data-ng-click="queue(video.id, video.title);searchRelated(video.id);">
+                                            <md-card>
+                                                <a ng-href="#related">
+                                                    <img data-ng-src="{{ video.thumbnail }}"/>
+                                                </a>
+                                                <md-card-content>
+                                                    <div class="md-list-item-text">
+                                                        <div md-font-icon="icon-youtube4"></div>
+                                                        <h3 class="md-title">{{ video.title | limitTo:50}}</h3>
+                                                        <h4 class="md-subhead">{{video.author}}</h4>
+
+                                                        <p class="md-caption">{{video.description | limitTo: 130}}</p>
+
+                                                    </div>
+                                                </md-card-content>
+                                            </md-card>
+                                        </div>
+                                        <md-divider></md-divider>
+
+                                    </md-list>
+                                </md-content>
+                                <!--content end search end-->  </md-content>
+                        </md-tab>
+                        <md-tab label="Related" data-ng-if="relatedLength()>0">
+                            <md-content class="md-padding">
+
+                                <!--content start related search on click-->
+                                <div id="related">
+                                    <md-list>
+                                        <md-subheader class="md-no-sticky">Related results</md-subheader>
+                                        <div class="md-3-line" data-ng-repeat="videos in related "
+                                             data-ng-click="queue(videos.id, videos.title);searchRelated(videos.id) ">
+                                            <md-card>
+
+                                                <img class="videos-image" data-ng-src="{{ videos.thumbnail }}"/>
+                                                <md-card-content>
+                                                    <div class="md-list-item-text">
+                                                        <div md-font-icon="icon-youtube4"></div>
+                                                        <h3 class="md-title">{{ videos.title | limitTo:50}}</h3>
+                                                        <h4 class="md-subhead">{{ videos.author }}</h4>
+
+                                                        <p class="md-caption">{{ videos.description | limitTo:130 }}</p>
+                                                    </div>
+                                                </md-card-content>
+                                            </md-card>
+                                        </div>
+                                        <md-divider></md-divider>
+                                    </md-list>
+                                </div>
+
+                                <!--content end related search on click--></md-content>
+                            <!--</md-tab>-->
+                            <!--<md-tab label="three">-->
+                            <!--<md-content class="md-padding">-->
+                            <!--<h1 class="md-display-2">Tab Three</h1>-->
+                            <!--<p>Integer turpis erat, porttitor vitae mi faucibus, laoreet interdum tellus. Curabitur posuere molestie dictum. Morbi eget congue risus, quis rhoncus quam. Suspendisse vitae hendrerit erat, at posuere mi. Cras eu fermentum nunc. Sed id ante eu orci commodo volutpat non ac est. Praesent ligula diam, congue eu enim scelerisque, finibus commodo lectus.</p>-->
+                            <!--</md-content>-->
+                            <!--</md-tab>-->
+                    </md-tabs>
+                </md-content>
+            </div>
+
+
+        </div>
     </div>
-    <div id="player">
-      <div id="placeholder"></div>
-    </div>
-    <div id="playlist">
-      <p id="current">{{ youtube.videoTitle }}</p>
-      <ol id="upcoming" data-ng-show="playlist">
-        <li data-ng-repeat="video in upcoming">
-          <p class="item-delete" data-ng-click="delete('upcoming', video.id)">delete</p>
-          <p class="item-title" data-ng-click="launch(video.id, video.title)">{{video.title}}</p>
-        </li>
-      </ol>
-      <ol id="history" data-ng-hide="playlist">
-        <li data-ng-repeat="video in history">
-          <p class="item-delete" data-ng-click="delete('history', video.id)">delete</p>
-          <p class="item-title" data-ng-click="queue(video.id, video.title)">{{video.title}}</p>
-        </li>
-      </ol>
-      <p id="tabs">
-        <a ng-class="{on:playlist}" data-ng-click="tabulate(true)">Upcoming</a>
-        <a ng-class="{on:!playlist}" data-ng-click="tabulate(false)">History</a>
-      </p>
-    </div>
-    <footer>
-      <em>Concept &amp; Design: <a href="http://jgthms.com">H. Seirafi</a></em>
-      Built with <a href="http://angularjs.org/">AngularJS</a>.
-    </footer>
-    <script src="angular.min.js"></script>
-    <script src="angular-local-storage.js"></script>
-    <script src="app.js"></script>
-  </body>
+
+
+</div>
+
+
+<!--<body data-ng-controller="VideosController" data-resizable >-->
+<!--width: {{windowWidth}}px-->
+<!--<br />-->
+<!--height: {{windowHeight }}px-->
+<!--<header>-->
+<!--<h1 ng-if="windowWidth > 616">Music<strong>Tube</strong></h1>-->
+<!--<form id="search" data-ng-submit="search()">-->
+<!--<input id="query" name="q" type="text" placeholder="Search for a YouTube video" data-ng-model="query">-->
+<!--<input id="submit" type="image" src="search.png" alt="Search">-->
+<!--</form>-->
+<!--<nav>-->
+<!--<a id="play">{{ youtube.state }}</a>-->
+<!--<a id="pause">Pause</a>-->
+<!--</nav>-->
+<!--</header>-->
+<!--<div id="results">-->
+<!--<div class="video" data-ng-repeat="video in results" data-ng-click="queue(video.id, video.title);searchRelated(video.id)">-->
+<!--<img class="video-image" data-ng-src="{{ video.thumbnail }}">-->
+<!--<p class="video-title">{{ video.title }}</p>-->
+<!--<p class="video-author">{{ video.author }}</p>-->
+<!--<p class="video-description">{{ video.description }}</p>-->
+<!--</div>-->
+<!--</div>-->
+<!--<div id="related">-->
+<!--<div class="video" data-ng-repeat="videos in related" data-ng-click="queue(videos.id, videos.title)" >-->
+<!--<img class="video-image" data-ng-src="{{videos.thumbnail }}">-->
+<!--<p class="video-title">{{ videos.title }}</p>-->
+<!--<p class="video-author">{{ videos.author }}</p>-->
+<!--<p class="video-description">{{ videos.description | limitTo: 150 }}</p>-->
+<!--</div>-->
+<!--</div>-->
+<!--<div id="player">-->
+<!--<div id="placeholder"></div>-->
+<!--</div>-->
+<!--<div data-ng-if="windowWidth > 1281" id="playlist">-->
+<!--<p id="current">{{ youtube.videoTitle }}</p>-->
+<!--<ol id="upcoming" data-ng-show="playlist">-->
+<!--<li data-ng-repeat="video in upcoming">-->
+<!--<p class="item-delete" data-ng-click="delete('upcoming', video.id)">delete</p>-->
+<!--<p class="item-title" data-ng-click="launch(video.id, video.title)">{{video.title}}</p>-->
+<!--</li>-->
+<!--</ol>-->
+<!--<ol id="history" data-ng-hide="playlist">-->
+<!--<li data-ng-repeat="video in history">-->
+<!--<p class="item-delete" data-ng-click="delete('history', video.id)">delete</p>-->
+<!--<p class="item-title" data-ng-click="queue(video.id, video.title)">{{video.title}}</p>-->
+<!--</li>-->
+<!--</ol>-->
+<!--<p id="tabs">-->
+<!--<a ng-class="{on:playlist}" data-ng-click="tabulate(true)">Upcoming</a>-->
+<!--<a ng-class="{on:!playlist}" data-ng-click="tabulate(false)">History</a>-->
+<!--</p>-->
+<!--</div>-->
+<!--<footer>-->
+<!--<em>Concept &amp; Design: <a href="http://jgthms.com">H. Seirafi</a></em>-->
+<!--Built with <a href="http://angularjs.org/">AngularJS</a>.-->
+<!--</footer>-->
+<script src="node_modules/angular/angular.js"></script>
+<script src="node_modules/angular-aria/angular-aria.js"></script>
+<script src="node_modules/angular-animate/angular-animate.js"></script>
+<script src="node_modules/angular-material/angular-material.js"></script>
+<script src="node_modules/angular-material/modules/closure/whiteframe/whiteframe.js"></script>
+<!--<script src="angular-local-storage.js"></script>-->
+<script src="app.js"></script>
+<script src="global.js"></script>
+<script src="jquery.js"></script>
+
+
+</body>
 </html>

@@ -1,0 +1,17 @@
+{
+  "name": "youtubeVideoPlayer",
+  "version": "0.0.0",
+  "homepage": "videotube",
+  "authors": [
+    "hseirafi@gmail.com <hseirafi@gmail.com>"
+  ],
+  "description": "bower for youtubeVideoPlayer",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
