@@ -295,9 +295,9 @@ app.controller('VideosController', function ($scope, $http, $log, VideosService)
         }
         console.log(videoSize);
 
-
         $http.get('https://www.googleapis.com/youtube/v3/search', {
-            params: {
+
+        params: {
                 key: 'AIzaSyCqD7uuoSEXa8CtbHfW70B4MtXbS6YjZr8',
                 type: 'video',
                 maxResults: '8',
@@ -310,7 +310,7 @@ app.controller('VideosController', function ($scope, $http, $log, VideosService)
                 //videoSyndicated:any(returns all vidoes, syndicated or not),true(Only retrieve vidoes that can be played on youtube)
                 //videoType:any(any), episode(only episode), movie(only movies),
                 location: locationQuery,
-                locationRadius: '21mi',
+                locationRadius:  $scope.miles + 'mi',
                 //publishedAfter: stuff,
                 //publishedBefore: stuff,
                 part: 'snippet',
@@ -322,10 +322,11 @@ app.controller('VideosController', function ($scope, $http, $log, VideosService)
         })
 
             .success(function (data) {
-                console.log('mainvidoes' + VideosService.listResults(data));
 
-                $log.info(data);
-            })
+                VideosService.listResults(data);
+                console.log("this is the scope applied" + JSON.stringify(data.locationRadius));
+                $log.info(data); })
+
             .error(function () {
                 $log.info('Search error');
             });
@@ -391,4 +392,8 @@ app.directive('resizable', function ($window) {
         $scope.initializeWindowSize();
     }
 });
+
+
+
+
 

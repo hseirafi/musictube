@@ -257,3 +257,6 @@ gridListdemoBasicUsage md-grid-list {
     height: 300px;
     margin-left: auto;
     margin-right: auto; }
+
+.sliderdemoBasicUsage input[type="number"] {
+    text-align: center; }

@@ -106,8 +106,17 @@
                     <md-button id="submit" class="md-raised md-primary md-hue-1 md-body-2" type="image" src="search.png"
                                ng-disabled="searchform.$invalid" alt="Search">Search
                     </md-button>
+                    <div flex="10" layout layout-align="center center">
+                        <span class="md-body-2">radius search in miles</span><br />
+                    </div>
+                    <md-slider flex md-discrete ng-model="miles" step="1" min="20" max="3000" aria-label="rating">
+                    </md-slider>
+
+
+
+
                 </form>
-            </md-content>
+                 </md-content>
             <!--content end search form-->
             <div>
                 <md-content class="md-padding">
