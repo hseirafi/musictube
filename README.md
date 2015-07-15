@@ -7,7 +7,9 @@ A YouTube powered jukebox built with AngularJS.
 
 ## Demo
 
-[jgthms.com/juketube/](http://jgthms.com/juketube/)
+[https://youtubeplayer.herokuapp.com/
+/](https://youtubeplayer.herokuapp.com/
+)
 
 ## Purpose
 
